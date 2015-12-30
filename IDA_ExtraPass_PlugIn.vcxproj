@@ -117,7 +117,10 @@
       <OutputFile>$(OutDir)$(TargetName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetFileName)" "$(IDADIR)\plugins"</Command>
+      <Command>
+        copy "$(OutDir)$(TargetFileName)" "$(SolutionDir)"
+        copy "$(OutDir)$(TargetFileName)" "$(IDADIR)\plugins"
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

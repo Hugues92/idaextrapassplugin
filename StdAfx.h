@@ -36,4 +36,4 @@
 
 #include "Utility.h"
 
-#define MY_VERSION "3.4"
+#define MY_VERSION "3.4.1"

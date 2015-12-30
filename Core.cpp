@@ -7,7 +7,7 @@
 #include "stdafx.h"
 #include "ContainersInl.h"
 #include <WaitBoxEx.h>
-#include <SegSelect.h>
+//#include <SegSelect.h>
 #include <IdaOgg.h>
 
 #include "complete_ogg.h"
@@ -145,7 +145,7 @@ static BOOL s_bDoMissingCode  = TRUE;
 static BOOL s_bDoMissingFunc  = TRUE;
 static BOOL s_bDoBadBlocks    = TRUE;
 static WORD s_wAudioAlertWhenDone = 1;
-static SegSelect::segments *chosen = NULL;
+//static SegSelect::segments *chosen = NULL;
 static ALIGN(16) Container::ListEx<Container::ListHT, tFUNCNODE> s_FuncList;
 
 
@@ -231,11 +231,11 @@ void CORE_Exit()
         }
         #endif
 
-        if (chosen)
-        {
-            SegSelect::free(chosen);
-            chosen = NULL;
-        }
+        //if (chosen)
+        //{
+        //    SegSelect::free(chosen);
+        //    chosen = NULL;
+        //}
         FlushFunctionList();
         OggPlay::endPlay();
         set_user_defined_prefix(0, NULL);
@@ -246,24 +246,24 @@ void CORE_Exit()
 // Handler for choose code and data segment buttons
 static void idaapi ChooseBtnHandler(TView *fields[], int code)
 {
-    if (chosen = SegSelect::select(SegSelect::CODE_HINT, "Choose code segments"))
-    {
-        msg("Chosen: ");
-        for (SegSelect::segments::iterator it = chosen->begin(); it != chosen->end(); ++it)
-        {
-            char buffer[64];
-            if (get_true_segm_name(*it, buffer, SIZESTR(buffer)) <= 0)
-                strcpy(buffer, "????");
+    //if (chosen = SegSelect::select(SegSelect::CODE_HINT, "Choose code segments"))
+    //{
+    //    msg("Chosen: ");
+    //    for (SegSelect::segments::iterator it = chosen->begin(); it != chosen->end(); ++it)
+    //    {
+    //        char buffer[64];
+    //        if (get_true_segm_name(*it, buffer, SIZESTR(buffer)) <= 0)
+    //            strcpy(buffer, "????");
 
-            SegSelect::segments::iterator it2 = it; ++it2;
-            if (it2 != chosen->end())
-                msg("\"%s\", ", buffer);
-            else
-                msg("\"%s\"", buffer);
-        }
-        msg("\n");
-        WaitBox::processIdaEvents();
-    }
+    //        SegSelect::segments::iterator it2 = it; ++it2;
+    //        if (it2 != chosen->end())
+    //            msg("\"%s\", ", buffer);
+    //        else
+    //            msg("\"%s\"", buffer);
+    //    }
+    //    msg("\n");
+    //    WaitBox::processIdaEvents();
+    //}
 }
 
 static void idaapi DoHyperlink(TView *fields[], int code) { open_url(SITE_URL); }
@@ -362,12 +362,12 @@ void CORE_Process(int iArg)
                         */
 
                         // First chosen seg
-                        if (chosen && !chosen->empty())
-                        {
-                            s_thisSeg = chosen->back();
-                            chosen->pop_back();
-                        }
-                        else
+                        //if (chosen && !chosen->empty())
+                        //{
+                        //    s_thisSeg = chosen->back();
+                        //    chosen->pop_back();
+                        //}
+                        //else
                         // Use the first CODE seg
                         {
                             int iSegCount = get_segm_qty();
@@ -1106,16 +1106,16 @@ static void NextState()
 		case eSTATE_FINISH:
 		{
 			// If there are more code segments to process, do next
-			autoWait();
-            if (chosen && !chosen->empty())
-			{
-				s_thisSeg = chosen->back();
-                chosen->pop_back();
-				s_eaSegStart = s_thisSeg->startEA;
-				s_eaSegEnd   = s_thisSeg->endEA;
-				s_eState = eSTATE_START;
-			}
-			else
+			//autoWait();
+			//if (chosen && !chosen->empty())
+			//{
+			//	s_thisSeg = chosen->back();
+			//	chosen->pop_back();
+			//	s_eaSegStart = s_thisSeg->startEA;
+			//	s_eaSegEnd   = s_thisSeg->endEA;
+			//	s_eState = eSTATE_START;
+			//}
+			//else
 			{
 				msg("\n===== Done =====\n");
 				ShowEndStats();
@@ -1146,11 +1146,11 @@ static void NextState()
 		{
 			// In case we aborted some place and list still exists..
 			FlushFunctionList();
-            if (chosen)
-            {
-                SegSelect::free(chosen);
-                chosen = NULL;
-            }
+            //if (chosen)
+            //{
+            //    SegSelect::free(chosen);
+            //    chosen = NULL;
+            //}
 			s_eState = eSTATE_INIT;
 		}
 		break;
@@ -1455,8 +1455,10 @@ static BOOL TryFunction(ea_t CodeStartEA, ea_t CodeEndEA, ea_t &rCurEA)
 								if(eaCRef != BADADDR)
 								{
 									char szName[MAXNAMELEN + 1];
-									if(get_true_name(BADADDR, eaCRef, szName, SIZESTR(szName)))
+									qstring N;
+									if(get_true_name(&N, eaCRef))
 									{
+										strncpy(szName, N.c_str(), (MAXNAMELEN));
 										const char * const aszExitNames[] =
 										{
 											"exception",
@@ -1498,8 +1500,11 @@ static BOOL TryFunction(ea_t CodeStartEA, ea_t CodeEndEA, ea_t &rCurEA)
 					if(!bExpected)
 					{
 						char szName[MAXNAMELEN + 1];
-						if(!get_true_name(BADADDR, pFunc->startEA, szName, SIZESTR(szName)))
+						qstring N;
+						if(!get_true_name(&N, pFunc->startEA))
 							memcpy(szName, "unknown", sizeof("unknown"));
+						else
+							strncpy(szName, N.c_str(), (MAXNAMELEN));
 						msg("%08X \"%s\" problem? <click me>\n", tailEA, szName);
 						//msg("  T: %d\n", cmd.itype);
 
